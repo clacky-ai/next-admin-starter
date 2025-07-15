@@ -2,15 +2,15 @@ import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { signToken, verifyToken } from '@/lib/auth/session';
 
-const protectedRoutes = '/dashboard';
+const adminRoutes = '/admin/dashboard';
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionCookie = request.cookies.get('session');
-  const isProtectedRoute = pathname.startsWith(protectedRoutes);
+  const isAdminRoute = pathname.startsWith(adminRoutes);
 
-  if (isProtectedRoute && !sessionCookie) {
-    return NextResponse.redirect(new URL('/sign-in', request.url));
+  if (isAdminRoute && !sessionCookie) {
+    return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
   let res = NextResponse.next();
@@ -34,8 +34,8 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       console.error('Error updating session:', error);
       res.cookies.delete('session');
-      if (isProtectedRoute) {
-        return NextResponse.redirect(new URL('/sign-in', request.url));
+      if (isAdminRoute) {
+        return NextResponse.redirect(new URL('/admin/login', request.url));
       }
     }
   }

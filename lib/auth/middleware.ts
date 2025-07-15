@@ -19,6 +19,10 @@ export function validatedAction<S extends z.ZodType<any, any>, T>(
   action: ValidatedActionFunction<S, T>
 ) {
   return async (prevState: ActionState, formData: FormData) => {
+    if (!formData) {
+      return { error: 'Form data is missing' };
+    }
+    
     const result = schema.safeParse(Object.fromEntries(formData));
     if (!result.success) {
       return { error: result.error.errors[0].message };
@@ -42,6 +46,10 @@ export function validatedActionWithUser<S extends z.ZodType<any, any>, T>(
     const user = await getUser();
     if (!user) {
       throw new Error('User is not authenticated');
+    }
+
+    if (!formData) {
+      return { error: 'Form data is missing' };
     }
 
     const result = schema.safeParse(Object.fromEntries(formData));
