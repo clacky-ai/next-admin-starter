@@ -15,6 +15,13 @@
       "when": 1752552544506,
       "tag": "0001_unique_preak",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1752664623604,
+      "tag": "0002_strange_lionheart",
+      "breakpoints": true
     }
   ]
 }

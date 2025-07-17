@@ -1,12 +1,12 @@
 # Admin Dashboard System
 
-This is an administrative dashboard system built with **Next.js** with support for secure authentication and team management functionality.
+This is an administrative dashboard system built with **Next.js** with support for secure authentication and user management functionality.
 
 ## Features
 
 - Authentication system with admin-only access
 - Admin dashboard at `/admin/dashboard`
-- Team member management
+- User account management
 - Activity monitoring
 - Secure session management
 

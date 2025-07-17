@@ -1,46 +1,32 @@
 'use client';
 
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Card,
   CardContent,
   CardHeader,
-  CardTitle,
-  CardFooter
+  CardTitle
 } from '@/components/ui/card';
-import { TeamDataWithMembers, User } from '@/lib/db/schema';
-import { removeTeamMember, inviteTeamMember } from '@/app/(login)/actions';
+import { User } from '@/lib/db/schema';
 import useSWR from 'swr';
-import { Suspense } from 'react';
-import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Loader2, PlusCircle, Users, Activity, Shield, Settings } from 'lucide-react';
-import { useActionState } from 'react';
-
-type ActionState = {
-  error?: string;
-  success?: string;
-};
+import { Users, Activity, Shield, Settings } from 'lucide-react';
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 function AdminOverviewCards() {
-  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
+  const { data: user } = useSWR<User>('/api/user', fetcher);
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium text-gray-600">Total Users</CardTitle>
+          <CardTitle className="text-sm font-medium text-gray-600">Current User</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex items-center">
             <Users className="h-8 w-8 text-blue-600 mr-3" />
             <div>
-              <div className="text-2xl font-bold">{teamData?.teamMembers?.length || 0}</div>
-              <p className="text-xs text-gray-600">Active members</p>
+              <div className="text-2xl font-bold">{user ? '1' : '0'}</div>
+              <p className="text-xs text-gray-600">Active user</p>
             </div>
           </div>
         </CardContent>
@@ -94,192 +80,41 @@ function AdminOverviewCards() {
   );
 }
 
-function TeamMembersSkeleton() {
-  return (
-    <Card className="mb-8 h-[140px]">
-      <CardHeader>
-        <CardTitle>Team Members</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="animate-pulse space-y-4 mt-1">
-          <div className="flex items-center space-x-4">
-            <div className="size-8 rounded-full bg-gray-200"></div>
-            <div className="space-y-2">
-              <div className="h-4 w-32 bg-gray-200 rounded"></div>
-              <div className="h-3 w-14 bg-gray-200 rounded"></div>
-            </div>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-function TeamMembers() {
-  const { data: teamData } = useSWR<TeamDataWithMembers>('/api/team', fetcher);
-  const [removeState, removeAction, isRemovePending] = useActionState<
-    ActionState,
-    FormData
-  >(removeTeamMember, {});
-
-  const getUserDisplayName = (user: Pick<User, 'id' | 'name' | 'email'>) => {
-    return user.name || user.email || 'Unknown User';
-  };
-
-  if (!teamData?.teamMembers?.length) {
-    return (
-      <Card className="mb-8">
-        <CardHeader>
-          <CardTitle>Team Members</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-muted-foreground">No team members yet.</p>
-        </CardContent>
-      </Card>
-    );
-  }
-
+function WelcomeCard() {
+  const { data: user } = useSWR<User>('/api/user', fetcher);
+  
   return (
     <Card className="mb-8">
       <CardHeader>
-        <CardTitle>Team Members</CardTitle>
+        <CardTitle>Welcome to Admin Dashboard</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="space-y-4">
-          {teamData.teamMembers.map((member, index) => (
-            <li key={member.id} className="flex items-center justify-between">
-              <div className="flex items-center space-x-4">
-                <Avatar>
-                  <AvatarFallback>
-                    {getUserDisplayName(member.user)
-                      .split(' ')
-                      .map((n) => n[0])
-                      .join('')}
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <p className="font-medium">
-                    {getUserDisplayName(member.user)}
-                  </p>
-                  <p className="text-sm text-muted-foreground">
-                    {member.user.email}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    Role: {member.role}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center space-x-2">
-                <form action={removeAction}>
-                  <input type="hidden" name="memberId" value={member.id} />
-                  <Button
-                    type="submit"
-                    variant="outline"
-                    size="sm"
-                    disabled={isRemovePending}
-                  >
-                    {isRemovePending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      'Remove'
-                    )}
-                  </Button>
-                </form>
-              </div>
-            </li>
-          ))}
-        </ul>
-        {removeState?.error && (
-          <p className="text-red-600 text-sm mt-4">{removeState.error}</p>
-        )}
+        <p className="text-muted-foreground">
+          Hello {user?.name || user?.email || 'Admin'}! Welcome to your administrative dashboard.
+        </p>
+        <p className="text-muted-foreground mt-2">
+          Use the navigation menu to access different sections of the admin panel.
+        </p>
       </CardContent>
     </Card>
   );
 }
 
-function AddTeamMember() {
-  const [state, formAction, isPending] = useActionState<ActionState, FormData>(
-    inviteTeamMember,
-    {}
-  );
-
+export default function Dashboard() {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Add Team Member</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <form action={formAction} className="space-y-4">
-          <div>
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="colleague@company.com"
-              required
-            />
-          </div>
-          <div>
-            <Label>Role</Label>
-            <RadioGroup name="role" defaultValue="member" className="mt-2">
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="member" id="member" />
-                <Label htmlFor="member">Member</Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="admin" id="admin" />
-                <Label htmlFor="admin">Admin</Label>
-              </div>
-            </RadioGroup>
-          </div>
-          {state?.error && (
-            <p className="text-red-600 text-sm">{state.error}</p>
-          )}
-          {state?.success && (
-            <p className="text-green-600 text-sm">{state.success}</p>
-          )}
-        </form>
-      </CardContent>
-      <CardFooter>
-        <Button type="submit" disabled={isPending} className="w-full">
-          {isPending ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Sending invitation...
-            </>
-          ) : (
-            <>
-              <PlusCircle className="mr-2 h-4 w-4" />
-              Send Invitation
-            </>
-          )}
-        </Button>
-      </CardFooter>
-    </Card>
-  );
-}
-
-export default function AdminDashboard() {
-  return (
-    <div className="p-6">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
-        <p className="text-gray-600 mt-2">Welcome to the admin panel. Monitor and manage your system.</p>
-      </div>
+    <section className="flex-1 p-4 lg:p-8">
+      <h1 className="text-lg lg:text-2xl font-medium text-gray-900 mb-6">
+        Dashboard
+      </h1>
       
-      <AdminOverviewCards />
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div>
-          <Suspense fallback={<TeamMembersSkeleton />}>
-            <TeamMembers />
-          </Suspense>
-        </div>
-        <div>
-          <AddTeamMember />
+      <div className="max-w-7xl mx-auto">
+        <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex-1">
+            <AdminOverviewCards />
+            <WelcomeCard />
+          </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
