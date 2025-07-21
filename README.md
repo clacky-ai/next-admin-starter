@@ -48,12 +48,10 @@ npm db:migrate
 npm db:seed
 ```
 
-This will create the following user and team:
+This will create the following user:
 
 - User: `test@test.com`
 - Password: `admin123`
-
-You can also create new users through the `/sign-up` route.
 
 Finally, run the Next.js development server:
 
