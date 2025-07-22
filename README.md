@@ -4,6 +4,7 @@ This is a starter template for building a application using **Next.js** with sup
 
 ## Features
 
+- Site configuration in `lib/config.ts`, remember to update the name and description
 - Default dashboard pages on admin users
 - Email/password authentication with JWTs stored to cookies
 - Global middleware to protect logged-in routes
@@ -20,8 +21,8 @@ This is a starter template for building a application using **Next.js** with sup
 ## Getting Started
 
 ```bash
-git clone https://github.com/clacky-ai/next-app-starter
-cd app-starter
+git clone https://github.com/clacky-ai/next-admin-starter
+cd next-admin-starter
 npm install
 ```
 
